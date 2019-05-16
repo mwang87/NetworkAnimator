@@ -44,10 +44,10 @@ def draw_component(sub_G, positions, columns=["precursor mass"], output_director
         plt.figure(1,figsize=(12,12)) 
         nx.draw(sub_G, node_color=component_sizes, pos=positions)
 
-        output_filename = os.path.join(output_directory, str(i) + "_" + size_column + ".png")
-        limits=plt.axis('off') 
+        output_filename = os.path.join(output_directory, ('%03d' % i) + "_" + size_column + ".png")
+        output_filename2 = os.path.join(output_directory, ('%03d' % i) + ".png")
         plt.savefig(output_filename)
-        limits=plt.axis('off') 
+        plt.savefig(output_filename2)
         plt.clf()
 
     return None
