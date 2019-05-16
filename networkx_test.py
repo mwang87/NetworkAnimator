@@ -47,7 +47,8 @@ def draw_component(sub_G, positions, columns=["precursor mass"], output_director
             node_labels[node[0]] = ""
 
         plt.figure(1,figsize=(12,12)) 
-        nx.draw_networkx(sub_G, node_color=component_sizes, pos=positions, label="MING", labels=node_labels)
+        nx.draw_networkx(sub_G, node_color=component_sizes, pos=positions, labels=node_labels)
+        #nx.draw_networkx(sub_G, node_size=component_sizes, pos=positions, labels=node_labels)
 
         output_filename = os.path.join(output_directory, ('%03d' % i) + "_" + size_column + ".png")
         output_filename2 = os.path.join(output_directory, ('%03d' % i) + ".png")
