@@ -5,14 +5,16 @@ import argparse
 import os
 import pandas as pd
 
-def get_component(G, component_number):
+def get_component(G, component_number=None, node_index=None):
     nodes_list = list(G.nodes(data=True))
 
-    print(nodes_list[0][1]["componentindex"])
+    if component_number != None:
+        component_nodes = [node[0] for node in nodes_list if int(node[1]["componentindex"]) == int(component_number)]
+    if node_index != None:
+        node_search = [node for node in nodes_list if int(node[0]) == int(node_index)][0]
+        component_number = node_search[1]["componentindex"]
+        component_nodes = [node[0] for node in nodes_list if int(node[1]["componentindex"]) == int(component_number)]
 
-    component_nodes = [node[0] for node in nodes_list if int(node[1]["componentindex"]) == int(component_number)]
-
-    print(component_nodes)
     
     sub_G = G.subgraph(component_nodes)
 
@@ -44,15 +46,20 @@ def draw_component(sub_G, positions, columns=["precursor mass"], output_director
 
         node_labels = {}
         for node in nodes_list:
-            node_labels[node[0]] = ""
+            #node_labels[node[0]] = ""
+            node_labels[node[0]] = node[1]["precursor mass"]
 
         plt.figure(1,figsize=(12,12)) 
-        nx.draw_networkx(sub_G, node_color=component_sizes, pos=positions, labels=node_labels)
-        #nx.draw_networkx(sub_G, node_size=component_sizes, pos=positions, labels=node_labels)
+        #nx.draw_networkx(sub_G, node_color=component_sizes, pos=positions, labels=node_labels)
+        nx.draw_networkx(sub_G, node_size=component_sizes, pos=positions, labels=node_labels)
+
+        #Trying edge labels
+        #edge_labels = nx.get_edge_attributes(sub_G,'mass_difference')
+        #nx.draw_networkx_edge_labels(G, pos=positions, edge_labels = edge_labels)
+
 
         output_filename = os.path.join(output_directory, ('%03d' % i) + "_" + size_column + ".png")
         output_filename2 = os.path.join(output_directory, ('%03d' % i) + ".png")
-        #plt.text(0.2, 0.6, "%i %s" % (i, size_column) , fontsize=20)
         plt.title("%i %s" % (i, size_column))
 
         #plt.savefig(output_filename)
@@ -89,7 +96,8 @@ def draw_component(sub_G, positions, columns=["precursor mass"], output_director
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--inputGraphml', default="data/test.graphml")
 parser.add_argument('--output_folder', default="output")
-parser.add_argument('--component', default="22")
+parser.add_argument('--component', default=None)
+parser.add_argument('--node', default=None)
 parser.add_argument('--columns', type=str, nargs='+', default=["precursor mass"])
 
 args = parser.parse_args()
@@ -97,7 +105,7 @@ args = parser.parse_args()
 print(args)
 
 G = nx.read_graphml(args.inputGraphml)
-sub_G, positions = get_component(G, args.component)
+sub_G, positions = get_component(G, component_number=args.component, node_index=args.node)
 
 draw_component(sub_G, positions, columns=args.columns, output_directory=args.output_folder)
 
