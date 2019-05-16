@@ -26,8 +26,8 @@ def draw_component(sub_G, positions, columns=["precursor mass"], output_director
         max_node_size = max([node[1][size_column] for size_column in columns])
         min_node_size = min([node[1][size_column] for size_column in columns])
 
-        min_size = 1
-        max_size = 100
+        min_size = 50
+        max_size = 500
 
         for size_column in columns:
             component_size = node[1][size_column]
@@ -41,12 +41,20 @@ def draw_component(sub_G, positions, columns=["precursor mass"], output_director
     
     for i, size_column in enumerate(columns):
         component_sizes = [node[1][size_column] for node in nodes_list]
+
+        node_labels = {}
+        for node in nodes_list:
+            node_labels[node[0]] = ""
+
         plt.figure(1,figsize=(12,12)) 
-        nx.draw(sub_G, node_color=component_sizes, pos=positions)
+        nx.draw_networkx(sub_G, node_color=component_sizes, pos=positions, label="MING", labels=node_labels)
 
         output_filename = os.path.join(output_directory, ('%03d' % i) + "_" + size_column + ".png")
         output_filename2 = os.path.join(output_directory, ('%03d' % i) + ".png")
-        plt.savefig(output_filename)
+        #plt.text(0.2, 0.6, "%i %s" % (i, size_column) , fontsize=20)
+        plt.title("%i %s" % (i, size_column))
+
+        #plt.savefig(output_filename)
         plt.savefig(output_filename2)
         plt.clf()
 
