@@ -4,17 +4,21 @@ import numpy as np
 import argparse
 import os
 import pandas as pd
+import json
 
 def get_component(G, component_number=None, node_index=None):
     nodes_list = list(G.nodes(data=True))
 
+    component_header = "componentindex"
+
     if component_number != None:
-        component_nodes = [node[0] for node in nodes_list if int(node[1]["componentindex"]) == int(component_number)]
+        component_nodes = [node[0] for node in nodes_list if int(node[1][component_header]) == int(component_number)]
     if node_index != None:
         node_search = [node for node in nodes_list if int(node[0]) == int(node_index)][0]
-        component_number = node_search[1]["componentindex"]
-        component_nodes = [node[0] for node in nodes_list if int(node[1]["componentindex"]) == int(component_number)]
+        component_number = node_search[1][component_header]
+        component_nodes = [node[0] for node in nodes_list if int(node[1][component_header]) == int(component_number)]
 
+    print("Found", len(component_nodes))
     
     sub_G = G.subgraph(component_nodes)
 
@@ -98,16 +102,25 @@ parser.add_argument('--inputGraphml', default="data/test.graphml")
 parser.add_argument('--output_folder', default="output")
 parser.add_argument('--component', default=None)
 parser.add_argument('--node', default=None)
-parser.add_argument('--columns', type=str, nargs='+', default=["precursor mass"])
+parser.add_argument('--columns', type=str, nargs='+', default=None)
+parser.add_argument('--columnsfile', type=str, default=None)
 
 args = parser.parse_args()
 
 print(args)
 
+columns = []
+if args.columns != None:
+    columnns = args.columns
+if args.columnsfile != None:
+    print(pd.read_csv(args.columnsfile))
+    columnns = list(pd.read_csv(args.columnsfile)["groups"])
+
+
 G = nx.read_graphml(args.inputGraphml)
 sub_G, positions = get_component(G, component_number=args.component, node_index=args.node)
 
-draw_component(sub_G, positions, columns=args.columns, output_directory=args.output_folder)
+draw_component(sub_G, positions, columns=columns, output_directory=args.output_folder)
 
 # for i, column in enumerate(args.columns):
 #     output_filename = os.path.join(args.output_folder, args.component + "_" + str(i) + "_" + column + ".png")
