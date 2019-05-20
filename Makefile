@@ -9,7 +9,7 @@ mauricio_test:
 
 
 NODE=1991
-COMPONENT=14
+COMPONENT=7
 QUERY_FILENAME=data/lauraisobel.graphml
 COLUMNSFILENAME=data/groups_laura_isobel.tsv
 visualize_node:
@@ -19,3 +19,10 @@ visualize_node:
 	ffmpeg -y -framerate 2 -i ./output/%03d.png output/output.mp4
 	ffmpeg -y -i output/output.mp4 -vf fps=2,scale=320:-1:flags=lanczos,palettegen output/palette.png
 	ffmpeg -y -i output/output.mp4 -i output/palette.png -filter_complex "fps=2,scale=1200:-1:flags=lanczos[x];[x][1:v]paletteuse" output/$(NODE).gif
+
+
+visualize_component:
+	python ./networkx_test.py --inputGraphml $(QUERY_FILENAME) --component $(COMPONENT) --output ./output/ --columnsfile $(COLUMNSFILENAME)
+	ffmpeg -y -framerate 2 -i ./output/%03d.png output/output.mp4
+	ffmpeg -y -i output/output.mp4 -vf fps=2,scale=320:-1:flags=lanczos,palettegen output/palette.png
+	ffmpeg -y -i output/output.mp4 -i output/palette.png -filter_complex "fps=2,scale=1200:-1:flags=lanczos[x];[x][1:v]paletteuse" output/$(COMPONENT).gif

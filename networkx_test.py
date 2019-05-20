@@ -25,17 +25,17 @@ def get_component(G, component_number=None, node_index=None):
     return sub_G, nx.spring_layout(sub_G, seed=0)
 
 
-def draw_component(sub_G, positions, columns=["precursor mass"], output_directory="output"):
+def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_directory="output"):
     nodes_list = list(sub_G.nodes(data=True))
-    
+
     for node in nodes_list:
-        max_node_size = max([node[1][size_column] for size_column in columns])
-        min_node_size = min([node[1][size_column] for size_column in columns])
+        max_node_size = max([node[1][size_column] for size_column in draw_columns])
+        min_node_size = min([node[1][size_column] for size_column in draw_columns])
 
         min_size = 50
         max_size = 500
 
-        for size_column in columns:
+        for size_column in draw_columns:
             component_size = node[1][size_column]
 
             xp = [min_node_size, max_node_size]
@@ -45,7 +45,7 @@ def draw_component(sub_G, positions, columns=["precursor mass"], output_director
             node[1][size_column] = new_component_size
 
     
-    for i, size_column in enumerate(columns):
+    for i, size_column in enumerate(draw_columns):
         component_sizes = [node[1][size_column] for node in nodes_list]
 
         node_labels = {}
@@ -113,14 +113,19 @@ columns = []
 if args.columns != None:
     columnns = args.columns
 if args.columnsfile != None:
-    print(pd.read_csv(args.columnsfile))
-    columnns = list(pd.read_csv(args.columnsfile)["groups"])
+    columns = list(pd.read_csv(args.columnsfile)["groups"])
+    print(columns)
 
 
 G = nx.read_graphml(args.inputGraphml)
 sub_G, positions = get_component(G, component_number=args.component, node_index=args.node)
 
-draw_component(sub_G, positions, columns=columns, output_directory=args.output_folder)
+"""Checking columns are all present"""
+nodes_list = list(sub_G.nodes(data=True))
+for column in columns:
+    if not column in nodes_list[0][1]:
+        print(column, "missing")
+draw_component(sub_G, positions, draw_columns=columns, output_directory=args.output_folder)
 
 # for i, column in enumerate(args.columns):
 #     output_filename = os.path.join(args.output_folder, args.component + "_" + str(i) + "_" + column + ".png")
