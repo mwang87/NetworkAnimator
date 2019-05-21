@@ -9,8 +9,8 @@ mauricio_test:
 
 
 NODE=1991
-COMPONENT=7
-QUERY_FILENAME=data/lauraisobel.graphml
+COMPONENT=9
+QUERY_FILENAME=data/acute.graphml
 COLUMNSFILENAME=data/groups_laura_isobel.tsv
 visualize_node:
 	#rm output/*

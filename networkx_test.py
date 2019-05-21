@@ -22,7 +22,7 @@ def get_component(G, component_number=None, node_index=None):
     
     sub_G = G.subgraph(component_nodes)
 
-    return sub_G, nx.spring_layout(sub_G, seed=0)
+    return sub_G, nx.spring_layout(sub_G, seed=0, k=0.75)
 
 
 def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_directory="output"):
@@ -53,8 +53,7 @@ def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_dir
             #node_labels[node[0]] = ""
             node_labels[node[0]] = node[1]["precursor mass"]
 
-        plt.figure(1,figsize=(12,12)) 
-        #nx.draw_networkx(sub_G, node_color=component_sizes, pos=positions, labels=node_labels)
+        plt.figure(1,figsize=(12,12))
         nx.draw_networkx(sub_G, node_size=component_sizes, pos=positions, labels=node_labels)
 
         #Trying edge labels
