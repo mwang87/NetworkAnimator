@@ -5,6 +5,7 @@ import argparse
 import os
 import pandas as pd
 import json
+from PIL import Image
 
 def get_component(G, component_number=None, node_index=None):
     nodes_list = list(G.nodes(data=True))
@@ -24,8 +25,14 @@ def get_component(G, component_number=None, node_index=None):
 
     return sub_G, nx.spring_layout(sub_G, seed=0, k=0.75)
 
+def get_all_component_list(G):
+    nodes_list = list(G.nodes(data=True))
+    component_header = "componentindex"
+    component_list = [int(node[1][component_header]) for node in nodes_list if int(node[1][component_header]) != -1]
 
-def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_directory="output"):
+    return list(set(component_list))
+
+def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_directory="output", outputfileprefix=""):
     nodes_list = list(sub_G.nodes(data=True))
 
     for node in nodes_list:
@@ -60,10 +67,9 @@ def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_dir
         #edge_labels = nx.get_edge_attributes(sub_G,'mass_difference')
         #nx.draw_networkx_edge_labels(G, pos=positions, edge_labels = edge_labels)
 
-
         output_filename = os.path.join(output_directory, ('%03d' % i) + "_" + size_column + ".png")
-        output_filename2 = os.path.join(output_directory, ('%03d' % i) + ".png")
-        plt.title("%i %s" % (i, size_column))
+        output_filename2 = os.path.join(output_directory, outputfileprefix + ('%03d' % i) + ".png")
+        plt.title("Index %i - Group %s" % (i, size_column))
 
         #plt.savefig(output_filename)
         plt.savefig(output_filename2)
@@ -72,29 +78,19 @@ def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_dir
     return None
 
 
-    nodes_list = list(sub_G.nodes(data=True))
-    component_sizes = [node[1][size_column] for node in nodes_list]
+def merge_images(input_list, output_filename):
+    ORIGINAL_WIDTH = 1200
+    ORIGINAL_HEIGHT = 1200
 
-    #Formatting size
-    max_value = max(component_sizes)
-    min_value = min(component_sizes)
+    NEW_HEIGHT = ORIGINAL_HEIGHT
+    NEW_WIDTH = ORIGINAL_WIDTH * len(input_list)
+    new_im = Image.new('RGB', (NEW_WIDTH, NEW_HEIGHT))
 
-    min_size = 1
-    max_size = 50
+    for i, elem in enumerate(input_list):
+        im=Image.open(elem)
+        new_im.paste(im, (i * ORIGINAL_WIDTH,0))
+    new_im.save(output_filename)
 
-    xp = [min_value, max_value]
-    fp = [min_size, max_size]
-
-    component_sizes = np.interp(component_sizes, xp, fp)
-
-    print(component_sizes)
-
-    limits=plt.axis('off') 
-    plt.figure(1,figsize=(12,12)) 
-    nx.draw(sub_G, node_color=component_sizes, pos=positions)
-    limits=plt.axis('off') 
-    plt.savefig(output_filename)
-    plt.clf()
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--inputGraphml', default="data/test.graphml")
@@ -117,18 +113,34 @@ if args.columnsfile != None:
 
 
 G = nx.read_graphml(args.inputGraphml)
-sub_G, positions = get_component(G, component_number=args.component, node_index=args.node)
 
-"""Checking columns are all present"""
-nodes_list = list(sub_G.nodes(data=True))
-for column in columns:
-    if not column in nodes_list[0][1]:
-        print(column, "missing")
-draw_component(sub_G, positions, draw_columns=columns, output_directory=args.output_folder)
+if args.component != None or args.node != None:
+    #If passed in a specific component
+    sub_G, positions = get_component(G, component_number=args.component, node_index=args.node)
+    """Checking columns are all present"""
+    nodes_list = list(sub_G.nodes(data=True))
+    for column in columns:
+        if not column in nodes_list[0][1]:
+            print(column, "missing")
+    draw_component(sub_G, positions, draw_columns=columns, output_directory=args.output_folder)
+else:
+    #All components
+    component_list = get_all_component_list(G)
 
-# for i, column in enumerate(args.columns):
-#     output_filename = os.path.join(args.output_folder, args.component + "_" + str(i) + "_" + column + ".png")
-#     draw_component(sub_G, positions, size_column=column, output_filename=output_filename)
+    component_list = component_list[:20]
+
+    for component in component_list:
+        sub_G, positions = get_component(G, component_number=component)
+        draw_component(sub_G, positions, draw_columns=columns, output_directory=args.output_folder, outputfileprefix=str(component) + ":")
+
+    #Merging all of them
+    for i, column in enumerate(columns):
+        filenames = [os.path.join(args.output_folder, str(component) + ":" + ('%03d' % i) + ".png") for component in component_list]
+        output_filename = os.path.join(args.output_folder, ('%03d' % i) + ".png")
+
+        print(filenames)
+        merge_images(filenames, output_filename)
+
 
 
 
