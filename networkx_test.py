@@ -30,7 +30,10 @@ def get_all_component_list(G):
     component_header = "componentindex"
     component_list = [int(node[1][component_header]) for node in nodes_list if int(node[1][component_header]) != -1]
 
-    return list(set(component_list))
+    unique_components = list(set(component_list))
+    component_counts = [component_list.count(component) for component in unique_components]
+
+    return zip(unique_components, component_counts)
 
 def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_directory="output", outputfileprefix=""):
     nodes_list = list(sub_G.nodes(data=True))
@@ -82,13 +85,15 @@ def merge_images(input_list, output_filename):
     ORIGINAL_WIDTH = 1200
     ORIGINAL_HEIGHT = 1200
 
-    NEW_HEIGHT = ORIGINAL_HEIGHT
-    NEW_WIDTH = ORIGINAL_WIDTH * len(input_list)
+    CANVAS_WIDTH = 5
+
+    NEW_HEIGHT = ORIGINAL_HEIGHT * int((len(input_list) + 1)/CANVAS_WIDTH)
+    NEW_WIDTH = ORIGINAL_WIDTH * CANVAS_WIDTH
     new_im = Image.new('RGB', (NEW_WIDTH, NEW_HEIGHT))
 
     for i, elem in enumerate(input_list):
         im=Image.open(elem)
-        new_im.paste(im, (i * ORIGINAL_WIDTH,0))
+        new_im.paste(im, ( (i % CANVAS_WIDTH) * ORIGINAL_WIDTH, int(i/CANVAS_WIDTH) * ORIGINAL_HEIGHT))
     new_im.save(output_filename)
 
 
@@ -127,7 +132,13 @@ else:
     #All components
     component_list = get_all_component_list(G)
 
+    print(component_list)
+
+    #Filter components to larger than size N
+    component_list = [component[0] for component in component_list if component[1] > 10]
+
     component_list = component_list[:20]
+
 
     for component in component_list:
         sub_G, positions = get_component(G, component_number=component)
