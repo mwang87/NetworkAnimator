@@ -29,3 +29,9 @@ visualize_component:
 visualize_all_components:
 	python ./animate_fullnetwork.py --inputGraphml $(QUERY_FILENAME) --output ./output/ --columnsfile $(COLUMNSFILENAME)
 	ffmpeg -y -framerate 2 -i ./output/%03d.png output/output.mp4
+
+visualize_double_component:
+	python ./animate_paircomponent.py --inputGraphml ./data/double_component/chronic.graphml \
+	--component 79 \
+	--output ./output/ \
+	--columnsfile ./data/double_component/groups_chronic.tsv
