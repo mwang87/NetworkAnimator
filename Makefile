@@ -12,6 +12,7 @@ NODE=1991
 COMPONENT=9
 QUERY_FILENAME=data/acute.graphml
 COLUMNSFILENAME=data/groups_laura_isobel.tsv
+FRAMESPERSECOND=1
 visualize_node:
 	#rm output/*
 	#python ./networkx_test.py --inputGraphml $(QUERY_FILENAME) --node $(NODE) --output ./output/ --columns "GNPSGROUP:L" "GNPSGROUP:A1" "GNPSGROUP:B1" "GNPSGROUP:C1" "GNPSGROUP:D1" "GNPSGROUP:TT" "GNPSGROUP:TM" "GNPSGROUP:TB" 
@@ -35,3 +36,6 @@ visualize_double_component:
 	--component 79 \
 	--output ./output/ \
 	--columnsfile ./data/double_component/groups_chronic.tsv
+	ffmpeg -y -framerate $(FRAMESPERSECOND) -i ./output/%03d.png output/pair_output.mp4
+	ffmpeg -y -i output/pair_output.mp4 -vf fps=$(FRAMESPERSECOND),scale=320:-1:flags=lanczos,palettegen output/palette.png
+	ffmpeg -y -i output/pair_output.mp4 -i output/palette.png -filter_complex "fps=$(FRAMESPERSECOND),scale=1200:-1:flags=lanczos[x];[x][1:v]paletteuse" output/pair_output.gif

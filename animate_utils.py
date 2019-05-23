@@ -82,11 +82,9 @@ def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_dir
     return None
 
 
-def merge_images(input_list, output_filename):
+def merge_images(input_list, output_filename, CANVAS_WIDTH=5):
     ORIGINAL_WIDTH = 1200
     ORIGINAL_HEIGHT = 1200
-
-    CANVAS_WIDTH = 5
 
     NEW_HEIGHT = ORIGINAL_HEIGHT * int((len(input_list) + 1)/CANVAS_WIDTH)
     NEW_WIDTH = ORIGINAL_WIDTH * CANVAS_WIDTH

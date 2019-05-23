@@ -27,5 +27,11 @@ columns2 = list(columns_df["groups2"])
 G = nx.read_graphml(args.inputGraphml)
 sub_G, positions = animate_utils.get_component(G, component_number=args.component, node_index=args.node)
 
-nodes_list = list(sub_G.nodes(data=True))
-animate_utils.draw_component(sub_G, positions, draw_columns=columns, output_directory=args.output_folder)
+animate_utils.draw_component(sub_G, positions, draw_columns=columns1, output_directory=args.output_folder, outputfileprefix="group1:")
+animate_utils.draw_component(sub_G, positions, draw_columns=columns2, output_directory=args.output_folder, outputfileprefix="group2:")
+
+#Merge Pairs of Molecules
+for i, column in enumerate(columns1):
+    filenames = [os.path.join(args.output_folder, "group1:" + ('%03d' % i) + ".png"), os.path.join(args.output_folder, "group2:" + ('%03d' % i) + ".png")]
+    output_filename = os.path.join(args.output_folder, ('%03d' % i) + ".png")
+    animate_utils.merge_images(filenames, output_filename, CANVAS_WIDTH=2)
