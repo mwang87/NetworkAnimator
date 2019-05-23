@@ -36,7 +36,7 @@ def get_all_component_list(G):
 
     return zip(unique_components, component_counts)
 
-def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_directory="output", outputfileprefix=""):
+def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_directory="output", outputfileprefix="", minimum_fold_change=4):
     nodes_list = list(sub_G.nodes(data=True))
 
     for node in nodes_list:
@@ -54,6 +54,13 @@ def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_dir
         
             new_component_size = np.interp([component_size], xp, fp)[0]
             node[1][size_column] = new_component_size
+
+        #Setting to fixed size if fold change is not big enough
+        if min_node_size != 0:
+            fold_change = max_node_size / min_node_size
+            if fold_change < minimum_fold_change:
+                for size_column in draw_columns:
+                    node[1][size_column] = 250
 
     
     for i, size_column in enumerate(draw_columns):
