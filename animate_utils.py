@@ -73,6 +73,7 @@ def draw_component(sub_G, positions, draw_columns=["precursor mass"], output_dir
 
         plt.figure(1,figsize=(12,12))
         nx.draw_networkx(sub_G, node_size=component_sizes, pos=positions, labels=node_labels)
+        #nx.draw_networkx(sub_G, node_color=component_sizes, pos=positions, labels=node_labels)
 
         #Trying edge labels
         #edge_labels = nx.get_edge_attributes(sub_G,'mass_difference')
