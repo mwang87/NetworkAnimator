@@ -20,4 +20,6 @@ Additionally, to denote the groups to display as size throughout the animation, 
 
 ## Animating Paired Metadata
 
-## Animating Full Network
+Plotting paired metadata, you'll have to use an external groups file, with the columns: group1 and group2
+
+
