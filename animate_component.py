@@ -8,7 +8,7 @@ import json
 from PIL import Image
 import animate_utils
 
-parser = argparse.ArgumentParser(description='Process some integers.')
+parser = argparse.ArgumentParser(description='Animate a Network')
 parser.add_argument('--inputGraphml', default="data/test.graphml")
 parser.add_argument('--output_folder', default="output")
 parser.add_argument('--component', default=None)
