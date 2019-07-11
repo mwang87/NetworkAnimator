@@ -9,9 +9,9 @@ mauricio_test:
 
 
 NODE=1991
-COMPONENT=9
-QUERY_FILENAME=data/acute.graphml
-COLUMNSFILENAME=data/groups_laura_isobel.tsv
+COMPONENT=161
+QUERY_FILENAME=data/alan_network1/network.graphml
+COLUMNSFILENAME=data/alan_network1/bloodplasma_day_comparison_groups.tsv
 FRAMESPERSECOND=1
 visualize_node:
 	#rm output/*
@@ -32,10 +32,10 @@ visualize_all_components:
 	ffmpeg -y -framerate 2 -i ./output/%03d.png output/output.mp4
 
 visualize_double_component:
-	python ./animate_paircomponent.py --inputGraphml ./data/double_component/chronic.graphml \
-	--component 79 \
+	python ./animate_paircomponent.py --inputGraphml $(QUERY_FILENAME) \
+	--component $(COMPONENT) \
 	--output ./output/ \
-	--columnsfile ./data/double_component/groups_chronic.tsv
+	--columnsfile $(COLUMNSFILENAME)
 	ffmpeg -y -framerate $(FRAMESPERSECOND) -i ./output/%03d.png output/pair_output.mp4
 	ffmpeg -y -i output/pair_output.mp4 -vf fps=$(FRAMESPERSECOND),scale=320:-1:flags=lanczos,palettegen output/palette.png
 	ffmpeg -y -i output/pair_output.mp4 -i output/palette.png -filter_complex "fps=$(FRAMESPERSECOND),scale=1200:-1:flags=lanczos[x];[x][1:v]paletteuse" output/pair_output.gif
